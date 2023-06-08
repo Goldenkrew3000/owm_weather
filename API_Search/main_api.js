@@ -118,6 +118,7 @@ exprapp.get('/', (req, res) => {
 // OSM /searchLocation?location=강남구
 exprapp.get('/searchLocation', (req, res) => {
     // Fetch location from URL, Create URL, Fetch URL, Parse JSON, and count found locations
+    log("Called");
     var USER_Location = req.query.location;
     var OSM_Url = OSM_CreateURL(USER_Location);
     var OSM_Res = request('GET', OSM_Url, {
@@ -142,6 +143,7 @@ exprapp.get('/searchLocation', (req, res) => {
     } else {
         // Locations found
         OSM_ResJson["code"] = 200;
+        OSM_ResJson["count"] = OSM_Keys;
         for (let i = 0; i < OSM_Keys; i++) {
             // Make temporary JSON object, add JSON data to the temporary JSON object, add temporary JSON object to other JSON object, and add the same data to arrays
             var OSM_ResJsonObj = {};
