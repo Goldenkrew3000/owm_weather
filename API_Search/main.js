@@ -1,3 +1,4 @@
+const dotenv = require('dotenv').config();
 const request = require('sync-request');
 const prompt = require('prompt-sync')({ sigint: true });
 const temperature = require('temperature');
@@ -8,7 +9,7 @@ const geotz = require('geo-tz');
 
 // 프로그램 설정
 var OSM_Limit = 5;
-var OWM_ApiKey = "";
+var OWM_ApiKey = process.env.OWM_API_KEY;
 var OWM_Lang = "kr";
 
 // OSM 위치 검색 API
