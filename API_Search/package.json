@@ -1,8 +1,8 @@
 {
-  "name": "owm",
+  "name": "api_search",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,16 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "axios": "^1.4.0",
-    "countries-and-timezones": "^3.4.1",
-    "date-format": "^4.0.14",
-    "dateformat": "^5.0.3",
+    "chalk": "4.1.2",
     "dotenv": "^16.1.4",
+    "express": "^4.18.2",
     "geo-tz": "^7.0.7",
-    "got": "^12.6.0",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.43",
-    "needle": "^3.2.0",
     "prompt-sync": "^4.2.0",
     "sync-request": "^6.1.0",
     "table": "^6.8.1",
