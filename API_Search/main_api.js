@@ -24,8 +24,15 @@ const log = console.log;
 // API Settings
 var OSM_Limit = 5;
 var OWM_ApiKey = process.env.OWM_API_KEY;
-var OWM_Lang = "kr";
-var EXPR_Port = 30000;
+var OWM_Lang = "kr"; // en / kr
+var OSM_Lang = "en-US"; // en-US / ko-KR
+var EXPR_Port = 8080;
+var REQ_UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/113.0";
+
+// Persistent Storage
+var OSM_DisplayName = new Array();
+var OSM_Lat = new Array();
+var OSM_Lon = new Array();
 
 // OSM Search API
 var OSM_Nom_A = "https://nominatim.openstreetmap.org/search?q=";
@@ -104,6 +111,51 @@ exprapp.listen(EXPR_Port, () => {
     log(chalk.green(`Express: Listening on port ${EXPR_Port}`));
 });
 
-exprapp.listen('/', (req, res) => {
+exprapp.get('/', (req, res) => {
     res.send("Weather API");
-})
+});
+
+// OSM /searchLocation?location=강남구
+exprapp.get('/searchLocation', (req, res) => {
+    // Fetch location from URL, Create URL, Fetch URL, Parse JSON, and count found locations
+    var USER_Location = req.query.location;
+    var OSM_Url = OSM_CreateURL(USER_Location);
+    var OSM_Res = request('GET', OSM_Url, {
+        headers: {
+            'user-agent': REQ_UserAgent,
+            'accept-language': OSM_Lang
+        }
+    });
+    var OSM_Json = JSON.parse(OSM_Res.getBody('utf-8'));
+    var OSM_Keys = Object.keys(OSM_Json).length;
+
+    // Empty Arrays
+    OSM_DisplayName = new Array();
+    OSM_Lat = new Array();
+    OSM_Lon = new Array();
+
+    // Create empty JSON object
+    var OSM_ResJson = {};
+    if (OSM_Keys == 0) {
+        // No locations found
+        OSM_ResJson["code"] = 400;
+    } else {
+        // Locations found
+        OSM_ResJson["code"] = 200;
+        for (let i = 0; i < OSM_Keys; i++) {
+            // Make temporary JSON object, add JSON data to the temporary JSON object, add temporary JSON object to other JSON object, and add the same data to arrays
+            var OSM_ResJsonObj = {};
+            OSM_ResJsonObj["name"] = OSM_Json[i]["display_name"];
+            OSM_ResJsonObj["lat"] = OSM_Json[i]["lat"];
+            OSM_ResJsonObj["lon"] = OSM_Json[i]["lon"];
+            OSM_ResJson[i] = OSM_ResJsonObj;
+            OSM_DisplayName = OSM_Json[i]["display_name"];
+            OSM_Lat = OSM_Json[i]["lat"];
+            OSM_Lon = OSM_Json[i]["lon"];
+        }
+    }
+    res.send(OSM_ResJson);
+});
+
+// OWM 
+
