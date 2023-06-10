@@ -234,4 +234,74 @@ exprapp.get('/weatherCurrent', (req, res) => {
     res.send(OWM_ResJson);
 });
 
-// OWM 5 Day 3 Hour /
+// OWM 5 Day 3 Hour /weatherLong?index=3 (References OSM_*[i] arrays)
+exprapp.get('/weatherLong', (req, res) => {
+    // Fetch index from URL, Fetch info from arrays, Create URL, Fetch URL, Parse JSON, Get Object Count, and Calculate Timezone
+    var USER_Index = req.query.index;
+    log(chalk.green(`Express: OWM Long Called, Index: ${USER_Index}`));
+    var OWM_DisplayName = OSM_DisplayName[USER_Index];
+    var OWM_Lat = OSM_Lat[USER_Index];
+    var OWM_Lon = OSM_Lon[USER_Index];
+    var OWM_ResJson = {};
+    if (OWM_DisplayName === undefined || OWM_DisplayName == "") {
+        OWM_ResJson["code"] = 400;
+        log(chalk.red("Express: OWM Long index not found"));
+        return res.send(OWM_ResJson);
+    } else {
+        OWM_ResJson["code"] = 200;
+    }
+    var OWM_Url = OWM_Long_CreateURL(OWM_Lat, OWM_Lon);
+    var OWM_Res = request('GET', OWM_Url, {
+        headers: {
+            'user-agent': REQ_UserAgent
+        }
+    });
+    var OWM_Json = JSON.parse(OWM_Res.getBody('utf-8'));
+    var OWM_Count = OWM_Json["cnt"];
+    var OWM_UnixTimezone = geotz.find(OWM_Lat, OWM_Lon)[0];
+    OWM_ResJson["count"] = OWM_Count;
+
+    //
+    for (let i = 0; i < OWM_Count; i++) {
+        // Gather needed info from original JSON, and Process it, then add it to the new JSON
+        var OWM_TempJson = {};
+        var OWM_TempTemp = OWM_Json["list"][i]["main"]["temp"];
+        var OWM_TempFeelsLike = OWM_Json["list"][i]["main"]["feels_like"];
+        OWM_TempTemp = temperature.kelvinToCelsius(OWM_TempTemp).toFixed(2);
+        OWM_TempFeelsLike = temperature.kelvinToCelsius(OWM_TempFeelsLike).toFixed(2);
+        var OWM_TempWindSpeed = 0; try { OWM_TempWindSpeed = OWM_Json["list"][i]["wind"]["speed"]; } catch (e) { OWM_TempWindSpeed = 0; } if (OWM_TempWindSpeed === undefined) { OWM_TempWindSpeed = 0; }
+        var OWM_TempWindDeg = 0; try { OWM_TempWindDeg = OWM_Json["list"][i]["wind"]["deg"]; } catch (e) { OWM_TempWindDeg = 0; } if (OWM_TempWindDeg === undefined) { OWM_TempWindDeg = 0; }
+        var OWM_TempWindGust = 0; try { OWM_TempWindGust = OWM_Json["list"][i]["wind"]["gust"]; } catch (e) { OWM_TempWindGust = 0; } if (OWM_TempWindGust === undefined) { OWM_TempWindGust = OWM_TempWindSpeed; }
+        var OWM_TempClouds = 0; try { OWM_TempClouds = OWM_Json["list"][i]["clouds"]["all"]; } catch (e) { OWM_TempClouds = 0; } if (OWM_TempClouds === undefined) { OWM_TempClouds = 0; }
+        var OWM_TempRain = 0; try { OWM_TempRain = OWM_Json["list"][i]["rain"]["3h"]; } catch (e) { OWM_TempRain = 0; } if (OWM_TempRain === undefined) { OWM_TempRain = 0; }
+        var OWM_TempSnow = 0; try { OWM_TempSnow = OWM_Json["list"][i]["snow"]["3h"]; } catch (e) { OWM_TempSnow = 0; } if (OWM_TempSnow === undefined) { OWM_TempSnow = 0; }
+        var OWM_TempDt = OWM_Json["list"][i]["dt"];
+        var OWM_TempPop = OWM_Json["list"][i]["pop"];
+        var OWM_TempPodt = OWM_Json["list"][i]["sys"]["pod"];
+        OWM_TempDt = OWM_CalculateTime(OWM_UnixTimezone, OWM_TempDt);
+        OWM_TempPop = OWM_TempPop * 100;
+        if (OWM_TempPodt == "d") {
+            OWM_TempPodt = "DAY";
+        } else if (OWM_TempPodt == "n") {
+            OWM_TempPodt = "NIGHT";
+        }
+        OWM_TempJson["main"] = OWM_Json["list"][i]["weather"][0]["main"];
+        OWM_TempJson["description"] = OWM_Json["list"][i]["weather"][0]["description"];
+        OWM_TempJson["temp"] = OWM_TempTemp;
+        OWM_TempJson["temp_feelslike"] = OWM_TempFeelsLike;
+        OWM_TempJson["pressure"] = OWM_Json["list"][i]["main"]["pressure"];
+        OWM_TempJson["humidity"] = OWM_Json["list"][i]["main"]["humidity"];
+        OWM_TempJson["visibility"] = OWM_Json["list"][i]["visibility"];
+        OWM_TempJson["wind_speed"] = OWM_TempWindSpeed;
+        OWM_TempJson["wind_deg"] = OWM_TempWindDeg;
+        OWM_TempJson["wind_gust"] = OWM_TempWindGust;
+        OWM_TempJson["clouds"] = OWM_TempClouds;
+        OWM_TempJson["rain_3h"] = OWM_TempRain;
+        OWM_TempJson["snow_3h"] = OWM_TempSnow;
+        OWM_TempJson["time"] = OWM_TempDt;
+        OWM_TempJson["pop"] = OWM_TempPop;
+        OWM_TempJson["podt"] = OWM_TempPodt;
+        OWM_ResJson[i] = OWM_TempJson;
+    }
+    res.send(OWM_ResJson);
+});

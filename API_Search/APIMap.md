@@ -62,3 +62,28 @@ Example Response:
   },
   code: 200
 }
+
+GET: /weatherLong?index=3 // Same thing with the index in /weatherCurrent
+RES:
+{
+    code: 200, (200 = good, 400 = index not found),
+    count: 40 (Same thing as in /searchLocation)
+    '0': {
+        main: Main weather,
+        description: Weather description,
+        temp: Temperature (섭씨),
+        temp_feelslike: Feels like temperature,
+        pressure: Pressure (hPa),
+        humidity: Humidity (%),
+        visibility: Visibility (km, Max 10km),
+        wind_speed: Wind Speed (m/s),
+        wind_deg: Wind Direction (degrees),
+        wind_gust: Wind Gust (m/s),
+        clouds: Clouds (%),
+        rain_3h: Rain past 3 hours (mm),
+        snow_3h: Snow past 3 hours (mm),
+        time: Time of data forecasted,
+        pop: Probability of precipitation (%),
+        podn: Part of day or night (DAY / NIGHT)
+    }
+}
