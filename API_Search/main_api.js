@@ -140,6 +140,7 @@ exprapp.get('/searchLocation', (req, res) => {
     if (OSM_Keys == 0) {
         // No locations found
         OSM_ResJson["code"] = 400;
+        log(chalk.red("Express: OSM Location not found"));
     } else {
         // Locations found
         OSM_ResJson["code"] = 200;
@@ -159,5 +160,78 @@ exprapp.get('/searchLocation', (req, res) => {
     res.send(OSM_ResJson);
 });
 
-// OWM 
+// OWM Current /weatherCurrent?index=3 (References OSM_*[i] arrays)
+exprapp.get('/weatherCurrent', (req, res) => {
+    // Fetch index from URL, Fetch info from arrays, Create URL, Fetch URL, and Parse JSON
+    var USER_Index = req.query.index;
+    log(chalk.green(`Express: OWM Current Called, Index: ${USER_Index}`));
+    var OWM_DisplayName = OSM_DisplayName[USER_Index];
+    var OWM_Lat = OSM_Lat[USER_Index];
+    var OWM_Lon = OSM_Lon[USER_Index];
+    var OWM_ResJson = {};
+    if (OWM_DisplayName === undefined || OWM_DisplayName == "") {
+        OWM_ResJson["code"] = 400;
+        log(chalk.red("Express: OWM Current index not found"));
+        return res.send(OWM_ResJson);
+    } else {
+        OWM_ResJson["code"] = 200;
+    }
+    var OWM_Url = OWM_Current_CreateURL(OWM_Lat, OWM_Lon);
+    var OWM_Res = request('GET', OWM_Url, {
+        headers: {
+            'user-agent': REQ_UserAgent
+        }
+    });
+    var OWM_Json = JSON.parse(OWM_Res.getBody('utf-8'));
+    var OWM_Main = OWM_Json["weather"][0]["main"];
+    var OWM_Description = OWM_Json["weather"][0]["description"];
+    var OWM_Temp = OWM_Json["main"]["temp"];
+    var OWM_FeelsLike = OWM_Json["main"]["feels_like"];
+    var OWM_Pressure = OWM_Json["main"]["pressure"];
+    var OWM_Humidity = OWM_Json["main"]["humidity"];
+    var OWM_Visibility = OWM_Json["visibility"];
+    var OWM_Wind_Speed = 0; try { OWM_Wind_Speed = OWM_Json["wind"]["speed"]; } catch (e) { OWM_Wind_Speed = 0; } if (OWM_Wind_Speed === undefined) { OWM_Wind_Speed = 0; }
+    var OWM_Wind_Deg = 0; try { OWM_Wind_Deg = OWM_Json["wind"]["deg"]; } catch (e) { OWM_Wind_Deg = 0; } if (OWM_Wind_Deg === undefined) { OWM_Wind_Deg = 0; }
+    var OWM_Wind_Gust = 0; try { OWM_Wind_Gust = OWM_Json["wind"]["gust"]; } catch (e) { OWM_Wind_Gust = 0; } if (OWM_Wind_Gust === undefined) { OWM_Wind_Gust = OWM_Wind_Speed; }
+    var OWM_Clouds_All = 0; try { OWM_Clouds_All = OWM_Json["clouds"]["all"]; } catch (e) { OWM_Clouds_All = 0; } if (OWM_Clouds_All === undefined) { OWM_Clouds_All = 0; }
+    var OWM_Rain_1H = 0; try { OWM_Rain_1H = OWM_Json["rain"]["1h"]; } catch (e) { OWM_Rain_1H = 0; } if (OWM_Rain_1H === undefined) { OWM_Rain_1H = 0; }
+    var OWM_Rain_3H = 0; try { OWM_Rain_3H = OWM_Json["rain"]["3h"]; } catch (e) { OWM_Rain_3H = 0; } if (OWM_Rain_3H === undefined) { OWM_Rain_3H = 0; }
+    var OWM_Snow_1H = 0; try { OWM_Snow_1H = OWM_Json["snow"]["1h"]; } catch (e) { OWM_Snow_1H = 0; } if (OWM_Snow_1H === undefined) { OWM_Snow_1H = 0; }
+    var OWM_Snow_3H = 0; try { OWM_Snow_3H = OWM_Json["snow"]["3h"]; } catch (e) { OWM_Snow_3H = 0; } if (OWM_Snow_3H === undefined) { OWM_Snow_3H = 0; }
+    var OWM_Dt = OWM_Json["dt"];
+    var OWM_SunUp = OWM_Json["sys"]["sunrise"];
+    var OWM_SunDown = OWM_Json["sys"]["sunset"];
 
+    // Format incoming JSON data
+    OWM_Temp = temperature.kelvinToCelsius(OWM_Temp).toFixed(2);
+    OWM_FeelsLike = temperature.kelvinToCelsius(OWM_FeelsLike).toFixed(2);
+    var OWM_UnixTimezone = geotz.find(OWM_Lat, OWM_Lon)[0];
+    OWM_Dt = OWM_CalculateTime(OWM_UnixTimezone, OWM_Dt);
+    OWM_SunUp = OWM_CalculateSun(OWM_UnixTimezone, OWM_SunUp, 1);
+    OWM_SunDown = OWM_CalculateSun(OWM_UnixTimezone, OWM_SunDown, 2);
+
+    // Form JSON Response
+    var OWM_TempJson = {};
+    OWM_TempJson["main"] = OWM_Main; // Main Weather
+    OWM_TempJson["description"] = OWM_Description; // Weather Description
+    OWM_TempJson["temp"] = OWM_Temp; // Temperature (2 digits, 섭씨)
+    OWM_TempJson["temp_feelslike"] = OWM_FeelsLike; // Temperature Feels Like (2 digits, 섭씨)
+    OWM_TempJson["pressure"] = OWM_Pressure; // Pressure (hPa)
+    OWM_TempJson["humidity"] = OWM_Humidity; // Humidity (%)
+    OWM_TempJson["visibility"] = OWM_Visibility; // Visibility (km)
+    OWM_TempJson["wind_speed"] = OWM_Wind_Speed; // Wind Speed (m/s)
+    OWM_TempJson["wind_deg"] = OWM_Wind_Deg; // Wind Direction (Degrees)
+    OWM_TempJson["wind_gust"] = OWM_Wind_Gust; // Wind Gust (m/s)
+    OWM_TempJson["clouds"] = OWM_Clouds_All; // Clouds (%)
+    OWM_TempJson["rain_1h"] = OWM_Rain_1H; // Rain past hour (mm)
+    OWM_TempJson["rain_3h"] = OWM_Rain_3H; // Rain past 3 hours (mm)
+    OWM_TempJson["snow_1h"] = OWM_Snow_1H; // Snow past hour (mm)
+    OWM_TempJson["snow_3h"] = OWM_Snow_3H; // Snow past 3 hours (mm)
+    OWM_TempJson["calctime"] = OWM_Dt; // Time of data calculation
+    OWM_TempJson["sunrise"] = OWM_SunUp; // Time of sunrise
+    OWM_TempJson["sunset"] = OWM_SunDown; // Time of sunset
+    OWM_ResJson[0] = OWM_TempJson;
+    res.send(OWM_ResJson);
+});
+
+// OWM 5 Day 3 Hour /
