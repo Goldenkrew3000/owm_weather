@@ -5,6 +5,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const formContainer = document.getElementById('formContainer');
     const container = document.getElementById('container');
+    const containerSelect = document.getElementById('containerSelect');
+    const externalComponent = document.getElementById('externalComponent');
+
+    // Import external component
+    fetch("component.html")
+        .then(response => response.text())
+        .then(data => {
+            log(data)
+            externalComponent.innerHTML = data;
+        })
+        .catch(error => log(error))
 
     document.getElementById("wipeButton").addEventListener("click", function(event) {
         log("Wipe button pressed");
@@ -14,6 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("locationForm").addEventListener("submit", function(event) {
         event.preventDefault(); // Stops the submit button refreshing the page
         log("Form submit pressed");
+
+        //containerSelect.style.opacity = '0';
 
         container.innerHTML = "";
 

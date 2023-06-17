@@ -1,0 +1,154 @@
+/* Load font */
+@font-face {
+    font-family: 'ibm-sans-regular';
+    src: url('IBMPlexSansKR-Regular.ttf');
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+/* Set body settings */
+body {
+    background: rgb(0, 0, 0);
+}
+
+/* Center the div */
+#containerCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+
+
+#locationContainerA {
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+#locationContainerA-title {
+    /* Set text color and size */
+    color: white;
+    font-size: 60px;
+    
+    /* Add a spacer to the bottom (To separate it from the form) */
+    margin-bottom: 30px;
+}
+
+#locationContainerA-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#locationContainerA-textbox {
+    /* Set width and height */
+    width: 400px;
+    height: 50px;
+
+    /* Fancy up the border */
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    padding: 10px;
+
+    /* Set colors and backgrounds */
+    background-color: transparent;
+    color: white;
+
+    /* Fancy up the text */
+    font-size: 30px;
+    text-align: center;
+
+    /* Remove the ugly original outline */
+    outline: none;
+
+    /* Add a 20px spacer to the right (to separate the search button) */
+    margin-right: 20px;
+}
+
+#locationContainerA-textbox:hover, #locationContainerA-textbox:focus {
+    border-color: #888;
+}
+
+#locationContainerA-search {
+    /* Fancy up the border */
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    
+    /* Fancy up the button */
+    padding: 10px;
+    width: 125px;
+
+    /* Set background */
+    background-color: transparent;
+
+    /* Color it */
+    font-size: 30px;
+    color: #ccc;
+}
+
+#locationContainerA-search:hover, #locationContainerA-search:focus {
+    border-color: #888;
+}
+
+
+
+#locationContainerB-title {
+    /* Set text color and size */
+    color: white;
+    font-size: 60px;
+
+    /* Align text to center */
+    text-align: center;
+    
+    /* Add a spacer to the bottom (To separate it from the form) */
+    margin-bottom: 30px;
+}
+
+
+
+#locationContainerB-form {
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    padding: 30px;
+
+    color: white;
+    font-size: 25px;
+}
+
+.locationContainerB-option {
+    font-size: 40px;
+}
+
+
+
+.locationContainerB-option input[type="radio"] {
+    display: none;
+}
+.locationContainerB-option input[type="radio"] + span {
+    display: inline-block;
+    position: relative;
+    padding-left: 25px;
+    cursor: pointer;
+  }
+  
+  .locationContainerB-option input[type="radio"] + span:before {
+    content: '';
+    display: inline-block;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background-color: transparent;
+  }
+  
+  .locationContainerB-option input[type="radio"]:checked + span:before {
+    background-color: #fff;
+  }
