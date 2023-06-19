@@ -108,34 +108,38 @@ body {
     margin-bottom: 30px;
 }
 
-
-
 #locationContainerB-form {
+    /* Fancy up the border */
     border-radius: 10px;
     border: 2px solid #ccc;
     padding: 30px;
 
+    /* Set text color aand size */
     color: white;
     font-size: 25px;
 }
 
 .locationContainerB-option {
+    /* Set size of text for the dynamically generated location options */
     font-size: 40px;
 }
 
 
 
 .locationContainerB-option input[type="radio"] {
-    display: none;
-}
-.locationContainerB-option input[type="radio"] + span {
+    appearance: none;
+    height: 1.2rem;
+    width: 1.2rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+
     display: inline-block;
     position: relative;
-    padding-left: 25px;
     cursor: pointer;
-  }
-  
-  .locationContainerB-option input[type="radio"] + span:before {
+    
+}
+
+.locationContainerB-option input[type="radio"]:before {
     content: '';
     display: inline-block;
     position: absolute;
@@ -147,8 +151,44 @@ body {
     border: 2px solid #fff;
     border-radius: 50%;
     background-color: transparent;
-  }
-  
-  .locationContainerB-option input[type="radio"]:checked + span:before {
+}
+
+.locationContainerB-option input[type="radio"]:checked:before {
     background-color: #fff;
-  }
+}
+
+
+
+#locationContainerB-wrapper-button {
+    /* A wrapper div to center the select button */
+    display: flex;
+    justify-content: center;
+}
+
+#locationContainerB-button {
+    /* Make some room between the location box and button */
+    margin-top: 25px;
+
+    /* Fancy up the border */
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    
+    /* Fancy up the button */
+    padding: 10px;
+    width: 125px;
+
+    /* Set background */
+    background-color: transparent;
+
+    /* Color it */
+    font-size: 30px;
+    color: #ccc;
+}
+
+#locationContainerB-button:hover, #locationContainerB-button:focus {
+    border-color: #888;
+}
+
+
+
+/**/

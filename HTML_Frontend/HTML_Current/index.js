@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const locationContainerA = document.getElementById('locationContainerA');
 
     // URLs
-    const locationApi = "http://192.168.5.2:8080/searchLocation?location=";
+    const locationApi = "http://192.168.5.2:12000/searchLocation?location=";
 
     // Persistent Storage
     var apiLocations = "";
@@ -97,17 +97,30 @@ document.addEventListener('DOMContentLoaded', function() {
             await loadLocationContainerB();
 
             const locationContainerB_form = document.getElementById('locationContainerB-form');
+            const locationContainerB = document.getElementById('locationContainerB');
+
+            var locationListHtml = "";
 
             for (let i = 0; i < locationCount; i++) {
-                log('called');
-                const newHtml = `<div class="locationContainerB-option">
-                    <input type="radio" name="radioLocation" value="a">
+                locationListHtml = locationListHtml + `<div class="locationContainerB-option">
+                    <input type="radio" name="radioLocation" value=${i}>
                     <span>${apiLocations[i]["name"]}</span>
                 </div>
                 `
-                log(newHtml)
-                locationContainerB_form.insertAdjacentHTML('beforeend', newHtml);
             }
+            locationContainerB_form.insertAdjacentHTML('afterbegin', locationListHtml);
+
+            document.getElementById('locationContainerB-button').addEventListener("click", async function(event) {
+                var selectedOption = document.querySelector('input[name="radioLocation"]:checked');
+                if (selectedOption) {
+                    var selectedValue = selectedOption.value;
+                    console.log(selectedValue);
+                    locationContainerB.innerHTML = "";
+                    runMain(selectedValue);
+                } else {
+                    console.log("No option selected.");
+                }
+            });
         });
 
         
@@ -115,3 +128,59 @@ document.addEventListener('DOMContentLoaded', function() {
 
     main();
 });
+
+
+
+async function runMain(index) {
+    log("Running main.");
+    // Load weather component
+    await loadWeatherComponent();
+
+    // Load weather current
+    await fetchWeatherCurrent(index);
+    weatherCurrentRes = JSON.prse(weatherCurrentRes);
+    var current_main = weatherCurrentRes["main"];
+    var current_desc = weatherCurrentRes["description"];
+}
+
+var weatherCurrentRes = "";
+var weatherCurrentUrl = "http://192.168.5.2:12000/weatherCurrent?index=";
+function fetchWeatherCurrent(index) {
+    return new Promise((resolve, reject) => {
+      fetch(weatherCurrentUrl + index)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Failed to load weather current: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(componentHtml => {
+            weatherCurrentRes = componentHtml;
+          resolve(); // Resolve the promise once the component is loaded
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+}
+
+function loadWeatherComponent() {
+    return new Promise((resolve, reject) => {
+      fetch("weather.html")
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Failed to load component: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(componentHtml => {
+            weatherContainer.innerHTML = componentHtml;
+          resolve(); // Resolve the promise once the component is loaded
+        })
+        .catch(error => {
+          console.error(error);
+          reject(error);
+        });
+    });
+}
