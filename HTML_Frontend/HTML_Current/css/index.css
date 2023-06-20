@@ -1,7 +1,7 @@
 /* Load font */
 @font-face {
     font-family: 'ibm-sans-regular';
-    src: url('IBMPlexSansKR-Regular.ttf');
+    src: url('../font/IBMPlexSansKR-Regular.ttf');
 }
 
 /* Set margin and body for html and body so flex doesn't cause a scroll bar */
