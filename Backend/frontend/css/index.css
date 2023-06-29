@@ -1,0 +1,24 @@
+/* Load font */
+@font-face {
+    font-family: 'ibm-sans-regular';
+    src: url('../font/IBMPlexSansKR-Regular.ttf');
+}
+
+/* Set margin and body for html and body so flex doesn't cause a scroll bar */
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+/* Set body settings */
+body {
+    background: rgb(0, 0, 0);
+}
+
+/* Center the div */
+#containerCenter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
